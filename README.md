@@ -7,7 +7,7 @@
 <!-- Replace the placeholders below with your actual deployed app and repository links. -->
 **Live dashboard:** [Open the Streamlit application]((https://banking-fraud-intelligence-dashboardvisual.streamlit.app/))  
 
-**Image of dashboard:** [Open the Streamlit application Image]((assets/dashboard-overview.png))
+**Image of dashboard:** ![Banking Fraud Intelligence Dashboard](assets/dashboard-overview.png)
 <!-- Optional: upload a screenshot to assets/dashboard-overview.png and uncomment. -->
 <!-- ![Banking Fraud Intelligence Dashboard](assets/dashboard-overview.png) -->
 
