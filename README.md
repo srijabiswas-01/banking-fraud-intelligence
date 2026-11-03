@@ -1,72 +1,80 @@
 # Banking Fraud Intelligence Dashboard
 
-**Graph-based transaction monitoring and suspicious-activity exploration using Neo4j AuraDB, Python, NetworkX, Plotly and Streamlit.**
+**Graph-based suspicious transaction monitoring and investigation using Neo4j AuraDB, Python, NetworkX, Plotly and Streamlit.**
 
-> **Portfolio proof of concept:** This application uses a small, synthetic banking dataset. Its risk flags are illustrative investigation signals, **not verified fraud findings or fraud probabilities**.
+> **Portfolio proof of concept.** This project uses synthetic banking data. Alerts, risk scores and network metrics are illustrative signals for investigation—not confirmed fraud, validated predictions or fraud probabilities.
 
-<!-- Replace the placeholders below with your actual deployed app and repository links. -->
-**Live dashboard:** [Open the Streamlit application]((https://banking-fraud-intelligence-dashboardvisual.streamlit.app/))  
+**Live dashboard:** [Launch Banking Fraud Intelligence](https://banking-fraud-intelligence-dashboardvisual.streamlit.app/)
 
-**Image of dashboard:** ![Banking Fraud Intelligence Dashboard](assets/dashboard-overview.png)
-<!-- Optional: upload a screenshot to assets/dashboard-overview.png and uncomment. -->
-<!-- ![Banking Fraud Intelligence Dashboard](assets/dashboard-overview.png) -->
+![Banking Fraud Intelligence Dashboard](assets/dashboard-overview.png)
 
 ## Executive summary
 
-Banks need to understand not only individual transactions but also **relationships between accounts**. This project demonstrates a graph-first workflow for exploring transfers, account connectivity, shared customer attributes and potentially suspicious patterns. Neo4j stores the network; Python and NetworkX calculate network analytics; Streamlit and Plotly present an interactive investigation interface.
+Traditional transaction tables reveal individual payments but can obscure relationships between accounts. This project models customers, accounts, transactions, devices and addresses as a graph in **Neo4j AuraDB**. A Python analytics workflow calculates Louvain communities, PageRank and heuristic account-risk scores; a hosted **Streamlit** application visualises the resulting network and provides account investigation tools.
 
-The dashboard helps an analyst answer questions such as:
+The latest dashboard also generates **four categories of read-only, rule-based suspicious activity alerts** directly from Neo4j: high-value transfers, shared devices, shared addresses and three-account transfer cycles. Analysts can filter and export alert records and inspect alerts associated with a selected primary account.
+
+### Business questions
 
 - Which accounts have the highest rule-based risk scores?
-- Which accounts exchange funds, and in which direction?
-- Are there connected groups of accounts that warrant further review?
-- Which accounts are structurally influential according to PageRank?
-- What transaction history, devices and registered addresses are linked to a selected account?
+- Which accounts transfer funds to one another, and in what direction?
+- Which communities and structurally influential accounts warrant further examination?
+- Which transfers exceed the demonstration high-value threshold?
+- Which accounts are associated with shared devices, addresses or directed transfer cycles?
+- What evidence and transaction history are available for an investigation?
 
-## Application features
+## Dashboard capabilities
 
 | Area | Capability | Analyst value |
 | --- | --- | --- |
-| Executive overview | Total accounts, transaction count, aggregate transfer value and high-risk account count | Understand the scope of the demonstration dataset |
-| Risk distribution | Interactive Plotly bar chart by risk category | Compare Low, Medium, High and Unknown classifications |
-| Network influence | PageRank ranking | Identify accounts with relatively high network influence |
-| Transaction network | Directed account-to-account graph with arrowheads | Trace the direction of transfers |
-| Community exploration | Nodes coloured by previously computed Louvain community ID | Explore clusters of connected accounts |
-| Investigation filters | Risk level, community and account-ID search | Narrow the investigation to relevant accounts |
-| Account drill-down | Risk score, PageRank, incoming/outgoing transactions | Inspect a selected account in context |
-| Linked customer context | Customer ID, device IDs and registered address IDs | Review potentially shared identifiers |
-| Exports | Download filtered accounts and account transaction history as CSV | Support further analysis and reporting |
-| Data refresh | Refresh cached Neo4j query results | Retrieve updated database records |
+| Executive overview | Total accounts, transaction count, transfer value, high-risk account count | Establish dataset scope |
+| Risk distribution | Interactive chart of account risk classifications | Compare risk groups |
+| Network influence | PageRank account ranking | Explore relative network centrality |
+| Interactive network | Directed account-to-account graph, hover details, zoom and pan | Trace money flows |
+| Community analysis | Louvain community colours | Explore structural clusters |
+| Sidebar filters | Risk level, community and account-ID search | Focus network and account views |
+| **Suspicious activity alerts** | Four Cypher detection rules | Surface activity requiring review |
+| **Alert KPIs** | Alert records by severity and distinct primary accounts | Summarise investigation workload |
+| **Alert filters** | Severity, category and optional sidebar-account matching | Prioritise specific alerts |
+| **Alert chart** | Plotly counts by alert type and severity | Compare alert categories |
+| **Account-level alerts** | Alerts listing the selected account as primary account | Provide rule-based context |
+| Account drill-down | Risk score, PageRank and incoming/outgoing transaction history | Examine individual accounts |
+| Customer context | Linked customer, device and registered-address IDs | Inspect shared identifiers |
+| CSV exports | Account, transaction and alert exports | Support offline review |
+| Data refresh | Clear cached data and rerun queries | Retrieve updated Neo4j records |
 
-**Filter behaviour:** The executive KPI cards and risk-distribution chart describe the full dataset. The network, PageRank ranking and account investigation table respond to the sidebar filters. A transfer is shown in the filtered network only when **both** accounts are included in the selection. The account drill-down shows the selected account's incoming and outgoing transfers from the full transaction dataset.
+**Filter behaviour:** Executive KPIs and the risk-distribution chart describe the full dataset. The sidebar filters affect the PageRank ranking, transaction network and account investigation table. Network edges appear only when **both endpoint accounts** match the filters. The account drill-down displays the selected account's transactions from the full transaction dataset. Alert KPIs count all alert records; alert-table filters are independent, with an optional checkbox to match sidebar-selected accounts.
+
+## Live dashboard preview
+
+The screenshot is expected at `assets/dashboard-overview.png`. If it is not yet uploaded, add it to the repository or remove the image line above to avoid a broken image.
 
 ## Technology stack
 
-| Layer | Technology | Role |
+| Layer | Technology | Purpose |
 | --- | --- | --- |
-| Graph database | Neo4j AuraDB | Stores accounts, customers, transactions and relationships |
-| Query language | Cypher | Retrieves graph entities and relationships |
-| Data processing | Python, pandas | Prepares account and transaction data |
-| Graph analytics | NetworkX | Used in the analysis workflow for community detection and PageRank; positions dashboard network nodes |
-| Visual analytics | Plotly | Interactive charts, network nodes and transaction connections |
-| Web application | Streamlit | Dashboard, filtering, drill-down and CSV downloads |
-| Hosting | Streamlit Community Cloud | Hosts the deployed web application |
-| Version control | GitHub | Tracks application source and documentation |
+| Graph database | Neo4j AuraDB | Stores banking entities and relationships |
+| Graph queries | Cypher | Retrieves data and evaluates alert rules |
+| Data preparation | Python, pandas | Tabular processing and aggregation |
+| Graph analytics | NetworkX | Upstream Louvain/PageRank workflow; dashboard spring layout |
+| Interactive visualisation | Plotly | Risk charts, alert chart and transaction network |
+| Application | Streamlit | Filters, KPIs, drill-down and exports |
+| Deployment | Streamlit Community Cloud | Public demonstration hosting |
+| Source control | GitHub | Application code and documentation |
 
-## Data model
+## Graph data model
 
-The demonstration graph contains the following node labels:
+| Node | Meaning | Initial count |
+| --- | --- | ---: |
+| `Customer` | Synthetic banking customer | 10 |
+| `Account` | Customer-owned account | 10 |
+| `Transaction` | Transfer event | 15 |
+| `Device` | Customer-associated device | 7 |
+| `Address` | Registered address | 7 |
+| `Merchant` | Merchant node (not currently used in dashboard) | 5 |
+| **Total nodes** | | **54** |
 
-| Node label | Meaning |
-| --- | --- |
-| `Customer` | Synthetic banking customer |
-| `Account` | Bank account owned by a customer |
-| `Transaction` | Individual transfer record |
-| `Device` | Device associated with a customer |
-| `Address` | Registered customer address |
-| `Merchant` | Merchant entity retained in the demonstration graph |
-
-The key relationships are:
+**Initial relationships:** 83.
 
 ```cypher
 (:Customer)-[:OWNS]->(:Account)
@@ -79,77 +87,91 @@ The key relationships are:
 (:Customer)-[:SHARED_ADDRESS_WITH]->(:Customer)
 ```
 
-The dashboard reads **transaction records** via `Account → INITIATED → Transaction → SENT_TO → Account`. It does not rely on `TRANSFERRED_TO` for its transaction totals, helping avoid double-counting the two representations of the same transfer. The `Merchant` nodes are present in the graph but are not currently used by the dashboard.
+**Transaction counting:** Dashboard totals use the `Account → INITIATED → Transaction → SENT_TO → Account` representation. The separate `TRANSFERRED_TO` relationships are used to identify directed three-account cycles; they are **not** added to transaction totals.
 
-### Demonstration dataset
+These counts describe the initial synthetic dataset; current database totals may differ.
 
-The initial synthetic dataset used in this project contains:
+## Analytics methodology
 
-| Measure | Count |
-| --- | ---: |
-| Customers | 10 |
-| Accounts | 10 |
-| Transactions | 15 |
-| Devices | 7 |
-| Addresses | 7 |
-| Merchants | 5 |
-| **Total nodes** | **54** |
-| **Total relationships** | **83** |
+### Louvain community detection
 
-These counts describe the **initial project dataset**, not a guaranteed live count. If the Neo4j data is expanded or modified, the live dashboard values may differ.
+The upstream Python workflow applies Louvain community detection to an undirected representation of the account-transfer network and writes `community_id` to account nodes. The dashboard reads those stored IDs and colours nodes accordingly. **A community is not a confirmed fraud ring.**
 
-## Analytical approach
+### PageRank
 
-### 1. Graph modelling
+The upstream workflow computes PageRank and stores it in `Account.pagerank`. The dashboard uses the values for influence ranking and account drill-down. **PageRank is not a fraud probability.**
 
-Accounts, transfers and customer context are modelled as connected entities rather than independent rows. This makes it possible to inspect transfer paths and shared attributes through graph traversals.
+### Enhanced rule-based risk scoring
 
-### 2. Community detection
+The earlier Python analysis workflow assigned illustrative points:
 
-The project analysis workflow applies **Louvain community detection** to an undirected representation of the account-transfer network. The resulting `community_id` is written back to each `Account` node in Neo4j. The Streamlit dashboard **reads** this property; it does not recompute Louvain communities on every page load.
-
-A community indicates graph structure. **Community membership alone does not imply collusion or fraud.**
-
-### 3. PageRank
-
-PageRank is calculated in the Python analysis workflow and stored as `Account.pagerank`. The dashboard uses it to rank accounts by network influence. PageRank is **not** a fraud likelihood estimate.
-
-### 4. Enhanced rule-based risk scoring
-
-The earlier analysis workflow assigned illustrative scores based on the following conditions:
-
-| Indicator | Illustrative points |
+| Indicator | Points |
 | --- | ---: |
 | Device shared with at least two other customers | 25 |
 | Address shared with at least two other customers | 15 |
-| At least one outgoing transaction of ₹50,000 or more | 20 |
+| At least one outgoing transfer of ₹50,000 or more | 20 |
 | Participation in a rapid three-account transfer cycle | 25 |
 | PageRank above the dataset's 80th percentile | 15 |
-| **Maximum possible score** | **100** |
+| **Maximum** | **100** |
 
-Illustrative classifications: **Low = 0–39**, **Medium = 40–69**, **High = 70–100**. These weights and thresholds were chosen for demonstration, not learned from labelled fraud outcomes or validated against a production banking dataset.
+Illustrative risk categories: **Low 0–39**, **Medium 40–69**, **High 70–100**.
 
-The deployed application reads `enhanced_risk_score` and `enhanced_risk_level` when present, and falls back to the earlier `risk_score` and `risk_level` properties if needed. **Scoring is performed upstream; the dashboard is primarily a visualisation and investigation layer.**
+The application reads `enhanced_risk_score` and `enhanced_risk_level` when available, falling back to `risk_score` and `risk_level`. It does not recalculate these scores on every page load. These weights and cut-offs were not trained or validated on labelled fraud outcomes.
+
+## Suspicious activity alert engine
+
+The updated application queries Neo4j directly and produces an alert table with `alert_id`, `alert_type`, `severity`, `primary_account`, `related_accounts` and `evidence`.
+
+| Detection rule | Trigger | Severity | Output granularity |
+| --- | --- | --- | --- |
+| `HIGH_VALUE_TRANSFER` | Individual transfer ≥ ₹50,000 | High | One record per qualifying transaction |
+| `SHARED_DEVICE` | Device used by ≥ 3 distinct customers | Medium | One record per linked account |
+| `SHARED_ADDRESS` | Address registered to ≥ 3 distinct customers | Medium | One record per linked account |
+| `CIRCULAR_TRANSFER` | Directed cycle across three distinct accounts | High | One record per detected cycle representation |
+
+**Interpretation notes:**
+
+- Thresholds and severities are **illustrative** and are not calibrated banking policies.
+- Shared-device/address alert counts represent **account-level alert records**, not unique devices or addresses.
+- The circular alert rule checks **graph structure**, not transfer timestamps or velocity. It should not be described as detecting *rapid* cycles without a separate temporal check.
+- The selected account's alert section shows records where it is the **primary account**. An account named only in `related_accounts` may not appear there.
+- Alert queries are **read-only**; this implementation does not persist alert cases, statuses or analyst notes.
+- The alert engine is separate from the previously calculated account risk score; generating an alert does not automatically update that score.
+
+## Illustrative investigation scenario
+
+The synthetic graph includes a directed transfer cycle:
+
+```text
+A003 ──▶ A004
+  ▲         │
+  │         ▼
+  └────── A005
+```
+
+A directed cycle may warrant review alongside transfer amounts, timestamps, counterparties and legitimate business context. **A cycle alone does not prove fraudulent behaviour.**
+
+An analyst can review the account network, inspect the alert table, filter for `CIRCULAR_TRANSFER`, select a primary account in the drill-down, examine incoming and outgoing transactions, and export the relevant records.
 
 ## Project structure
 
 ```text
 banking-fraud-intelligence/
-├── app.py                 # Streamlit dashboard and Neo4j queries
-├── requirements.txt       # Python dependencies
-├── README.md              # Project documentation
-├── .gitignore             # Excludes secrets and local files
-└── assets/                # Optional screenshots for the README
+├── app.py                    # Streamlit app, Neo4j queries and alert rules
+├── requirements.txt          # Python dependencies
+├── README.md                 # Project documentation
+├── .gitignore                # Excludes local secrets and environment files
+└── assets/
     └── dashboard-overview.png
 ```
 
-The `assets/` directory is optional. Create it when you have a screenshot to publish.
+The `assets/` directory is optional until a screenshot is uploaded. The upstream Colab analysis notebook is not included in this structure unless you add it to the repository.
 
 ## Run locally
 
-**Prerequisites:** Python 3.10+ and access to a running Neo4j AuraDB instance populated with the expected graph schema and analytics properties.
+**Prerequisites:** Python 3.10+ and access to a Neo4j AuraDB instance containing the expected graph schema and stored account analytics.
 
-1. Clone the repository and enter its directory:
+1. Clone your GitHub repository:
 
    ```bash
    git clone YOUR_GITHUB_REPOSITORY_URL
@@ -172,7 +194,7 @@ The `assets/` directory is optional. Create it when you have a screenshot to pub
    pip install -r requirements.txt
    ```
 
-4. Create `.streamlit/secrets.toml` **locally** with the following keys:
+4. Create a local `.streamlit/secrets.toml` file:
 
    ```toml
    NEO4J_URI = "neo4j+s://YOUR_INSTANCE.databases.neo4j.io"
@@ -180,13 +202,13 @@ The `assets/` directory is optional. Create it when you have a screenshot to pub
    NEO4J_PASSWORD = "YOUR_DATABASE_PASSWORD"
    ```
 
-5. Launch the dashboard:
+5. Launch:
 
    ```bash
    streamlit run app.py
    ```
 
-The Neo4j Python driver connects using the AuraDB **default database**. The code intentionally uses `driver.session()` without hard-coding `database="neo4j"`, because the database name may differ between Aura instances.
+The app uses `driver.session()` without a hard-coded database name, allowing Aura to select its default database.
 
 ### `requirements.txt`
 
@@ -211,66 +233,55 @@ __pycache__/
 .ipynb_checkpoints/
 ```
 
-## Deploy with Streamlit Community Cloud
+## Deploy to Streamlit Community Cloud
 
-1. Push `app.py`, `requirements.txt` and `README.md` to GitHub.
-2. Create an application in Streamlit Community Cloud and select the repository, branch and `app.py` entry point.
-3. In the application's **Secrets** settings, add `NEO4J_URI`, `NEO4J_USERNAME` and `NEO4J_PASSWORD`.
-4. Deploy, open the public app and verify that Neo4j queries return account and transaction data.
-5. Add the real Streamlit URL to the **Live dashboard** link at the top of this README.
+1. Push `app.py`, `requirements.txt` and `README.md` to your GitHub repository.
+2. In Streamlit Community Cloud, select the repository, branch and `app.py` entry point.
+3. Configure `NEO4J_URI`, `NEO4J_USERNAME` and `NEO4J_PASSWORD` in the application's private Secrets settings.
+4. Deploy and verify that the executive metrics, network, alert table and account drill-down load successfully.
+5. Test the sidebar filters, CSV exports and refresh action.
 
-**Security:** Never commit `.streamlit/secrets.toml`, API keys, database passwords or real customer data. If a secret is accidentally committed, rotate it immediately and remove it from repository history. A public demonstration app should use synthetic or otherwise appropriately authorised data and read-only database credentials where supported.
+**Security:** Never commit Neo4j passwords, `.streamlit/secrets.toml`, real customer data or other credentials. Rotate credentials immediately if exposed. Use synthetic or appropriately authorised data, and least-privilege database access where supported.
 
-## Example investigation workflow
+## Validation checklist
 
-1. Review the executive KPI cards and account risk distribution.
-2. Filter to **High** risk accounts or select a Louvain community.
-3. Explore the directed transaction network and hover over a connection to see aggregated transfer value and transaction count.
-4. Select an account in **Account Drill-Down** to review its risk score, PageRank and transaction history.
-5. Review its linked device and registered-address IDs as additional context.
-6. Export the relevant CSV data for further review.
-
-### Illustrative suspicious pattern
-
-The synthetic dataset includes a rapid circular transfer pattern:
-
-```text
-A003 ──₹95,000──▶ A004
-  ▲                 │
-  │                 │ ₹92,000
-  │                 ▼
-  └────₹90,000──── A005
-```
-
-The demonstration timestamps place these transfers within a short interval. Such a pattern may merit investigation, but **a circular path is not proof of illicit activity**.
+- [ ] Live dashboard loads without Neo4j errors.
+- [ ] KPI transaction count matches the intended transaction records.
+- [ ] Network nodes and directed connections render correctly.
+- [ ] Risk and community filters work as expected.
+- [ ] High-value, shared-device, shared-address and cycle queries execute successfully.
+- [ ] Alert filters, counts and CSV export work.
+- [ ] Account drill-down shows transactions and linked customer context.
+- [ ] No credentials are present in public repository files.
+- [ ] Dashboard screenshot appears in the README.
 
 ## Limitations and responsible use
 
-- **Synthetic, very small sample:** Ten accounts and fifteen transfers cannot establish realistic model performance or operational scalability.
-- **No validated detection accuracy:** Precision, recall, false-positive rate and ROC-AUC have not been established from labelled outcomes.
-- **Heuristic risk weights:** Thresholds and points are illustrative, and should not be interpreted as calibrated probabilities.
-- **Community and centrality are contextual signals:** Neither Louvain membership nor PageRank demonstrates fraudulent intent.
-- **No live transaction ingestion:** The dashboard queries the stored graph and caches results for up to five minutes unless refreshed.
-- **No production case-management workflow:** The application does not provide analyst approvals, audit trails, alert queues or regulatory reporting.
-- **Graph-layout constraints:** A spring layout is useful for a small demo but may become crowded on large networks.
+- **Synthetic, small dataset:** The initial graph has 10 accounts and 15 transactions, which is insufficient to establish real-world fraud detection effectiveness.
+- **No validated model performance:** Precision, recall, false-positive rates and ROC-AUC have not been evaluated against labelled outcomes.
+- **Illustrative heuristics:** Risk points, thresholds and alert severities are not calibrated or independently validated.
+- **No real-time ingestion:** The application queries stored Neo4j data, with cached results generally refreshed every five minutes or on demand.
+- **No production case management:** There are no persistent case statuses, analyst notes, approvals, audit logs or regulatory reporting workflows.
+- **Limited graph scale:** NetworkX spring layouts are suitable for a small demonstration but can become slow or crowded on larger networks.
+- **No fraud determination:** Community membership, PageRank, shared identifiers, high-value transfers and cycles can all occur for legitimate reasons.
 
-This project is an **analytics portfolio demonstration**, not a banking compliance system or a tool for making automated adverse decisions about customers.
+The application is a **graph analytics and suspicious-activity investigation portfolio project**, not a production fraud decision engine or regulatory compliance platform.
 
-## Future development
+## Future enhancements
 
-- Generate a larger, more realistic synthetic dataset with documented normal and suspicious scenarios.
-- Add transaction timelines, velocity indicators, repeated beneficiary patterns and temporal graph features.
-- Build a case-management view with investigation notes and review status.
-- Introduce labelled synthetic outcomes and evaluate detection metrics, including false positives.
-- Add role-based access, database least-privilege permissions, observability and deployment tests.
-- Improve performance for large graphs with server-side filtering and scalable network visualisation.
+- Add realistic synthetic scenarios and labelled evaluation datasets.
+- Introduce time-windowed transfer velocity and temporal cycle detection.
+- Create persistent investigation cases with ownership, status, notes and audit history.
+- Evaluate alert precision, recall and false-positive rates on labelled scenarios.
+- Add authentication, role-based permissions, monitoring and automated deployment tests.
+- Optimise queries and network rendering for larger datasets.
 
 ## Project status
 
-**Current:** Interactive Streamlit proof of concept hosted with Neo4j AuraDB, account-risk exploration, community and PageRank visualisations, directed transfer network, account drill-down and CSV exports.
+**Implemented in code:** Neo4j-backed Streamlit dashboard, executive KPIs, PageRank and Louvain visualisations, directed transaction network, account drill-down, customer context, CSV exports and a four-rule suspicious activity alert engine.
 
-**Next milestone:** Expand and evaluate the synthetic dataset before making claims about fraud-detection effectiveness.
+**Final verification:** Confirm that the latest alert-enabled `app.py` is deployed and that all four Cypher alert rules run against the live AuraDB graph.
 
 ---
 
-**Disclaimer:** All example account identifiers, transactions and customer links are synthetic. Any suspicious-activity designation is a rule-based flag for analytical review and should not be treated as a finding of fraud.
+**Disclaimer:** All demonstration customers, accounts and transactions are synthetic. Suspicious-activity flags indicate patterns for analytical review, not established fraudulent conduct.
