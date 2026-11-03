@@ -5,8 +5,9 @@
 > **Portfolio proof of concept:** This application uses a small, synthetic banking dataset. Its risk flags are illustrative investigation signals, **not verified fraud findings or fraud probabilities**.
 
 <!-- Replace the placeholders below with your actual deployed app and repository links. -->
-**Live dashboard:** [Open the Streamlit application]([YOUR_STREAMLIT_APP_URL](https://banking-fraud-intelligence-dashboardvisual.streamlit.app/))  
+**Live dashboard:** [Open the Streamlit application]((https://banking-fraud-intelligence-dashboardvisual.streamlit.app/))  
 
+**Image of dashboard:** [Open the Streamlit application Image]((assets/dashboard-overview.png))
 <!-- Optional: upload a screenshot to assets/dashboard-overview.png and uncomment. -->
 <!-- ![Banking Fraud Intelligence Dashboard](assets/dashboard-overview.png) -->
 
